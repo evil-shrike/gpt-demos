@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script async='async' src='https://www.googletagservices.com/tag/js/gpt.js'></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<style>
+  #test_div {
+    color: #333;
+    text-align: center;
+    padding: 1em;
+    background: #ffea61;
+    box-shadow: 0 0 0.5em #999;
+    min-width:100px;
+    min-height:50px;
+  }
+</style>
+
+<body>
+<button class="btn-stop">Stop</button>
+<button class="btn-start">Start</button>
+
+</body>
+
+<script>
+var g_timer;
+var g_stopped;
+
+document.getElementsByClassName('btn-stop')[0].addEventListener('click', ()=> {
+  if (g_timer)
+    clearTimeout(g_timer);
+  
+  g_stopped = true;
+});
+
+document.getElementsByClassName('btn-start')[0].addEventListener('click', ()=> {
+  g_stopped = false;
+  restartTest();
+});
+
+function createTestDiv () {
+    const div = document.createElement('div');
+    div.id = 'test_div';
+    return div;
+}
+function restartTest () {
+    if (g_stopped) return;
+    const div = createTestDiv();
+    document.body.appendChild(div);
+    googletag.cmd.push(() => {
+        const slot = googletag.defineSlot(
+            '/6075/shrike_testsite1/shrike_testsite1_homepage',
+            [
+                [1, 2], [728, 90], [750, 90],
+                [750, 100], [750, 200], [750, 300],
+                [930, 90], [930, 180], [950, 90],
+                [960, 90], [970, 66], [970, 90],
+                [970, 250], [980, 90], [980, 120],
+                [980, 145], [980, 250]
+            ],
+            'test_div'
+        );
+        googletag.pubads().disableInitialLoad();
+        googletag.pubads().enableSingleRequest();
+        googletag.pubads().enableLazyLoad();
+        slot.addService(googletag.pubads());
+        // googletag.pubads().refresh([slot])
+        setTimeout(() => {
+            googletag.cmd.push(() => {
+                const hasBeenDestroyed = googletag.destroySlots([slot]);
+                if (hasBeenDestroyed) {
+                    document.body.removeChild(div);
+                    if (g_stopped) return;
+                    g_timer = setTimeout(restartTest, 600);
+                }
+            });
+        }, 600);
+    });
+}
+
+//restartTest();
+</script>
